@@ -6,55 +6,54 @@
 
 <section class="hero">
     <div class="hero-inner">
-        <div class="hero-badge">Personal Finance Tracker</div>
+        <div class="hero-badge"><span class="hero-badge-dot"></span>Free to use · No credit card needed</div>
         <h1 class="hero-title">
-            Know where your<br>
-            <em>money goes</em>
+            Track every rupee.<br>
+            <em>Know where it goes.</em>
         </h1>
         <p class="hero-subtitle">
-            Log expenses, understand your spending patterns,
-            and take control of your financial life —
-            one transaction at a time.
+            Spendly helps you log expenses, spot patterns, and stay
+            on budget — without the spreadsheet headache.
         </p>
         <div class="hero-actions">
-            <a href="{{ url_for('register') }}" class="btn-primary">Start tracking free</a>
-            <a href="{{ url_for('login') }}" class="btn-ghost">Sign in</a>
+            <a href="{{ url_for('register') }}" class="btn-primary">Create free account</a>
+            <button type="button" class="btn-primary" id="how-it-works-btn">See how it works</button>
         </div>
     </div>
-    <div class="hero-visual">
-        <div class="mock-card">
-            <div class="mock-card-header">
-                <span class="mock-label">March 2026</span>
-                <span class="mock-total">₹12,450</span>
+    <div class="hero-dashboard">
+        <div class="dash-window">
+            <div class="dash-dots">
+                <span></span><span></span><span></span>
             </div>
-            <div class="mock-bars">
-                <div class="mock-bar-row">
-                    <span class="mock-cat">Bills</span>
-                    <div class="mock-bar-track">
-                        <div class="mock-bar" style="width: 72%"></div>
-                    </div>
-                    <span class="mock-amt">₹4,500</span>
+            <div class="dash-stats">
+                <div class="dash-stat">
+                    <span class="dash-label">This month</span>
+                    <span class="dash-value">₹18,240</span>
+                    <span class="dash-note dash-note-bad">+12% vs last</span>
                 </div>
-                <div class="mock-bar-row">
-                    <span class="mock-cat">Food</span>
-                    <div class="mock-bar-track">
-                        <div class="mock-bar mock-bar-2" style="width: 52%"></div>
-                    </div>
-                    <span class="mock-amt">₹3,200</span>
+                <div class="dash-stat">
+                    <span class="dash-label">Budget left</span>
+                    <span class="dash-value">₹6,760</span>
+                    <span class="dash-note dash-note-good">43% remaining</span>
                 </div>
-                <div class="mock-bar-row">
-                    <span class="mock-cat">Health</span>
-                    <div class="mock-bar-track">
-                        <div class="mock-bar mock-bar-3" style="width: 33%"></div>
-                    </div>
-                    <span class="mock-amt">₹2,050</span>
+                <div class="dash-stat">
+                    <span class="dash-label">Transactions</span>
+                    <span class="dash-value">34</span>
+                    <span class="dash-note">this month</span>
                 </div>
-                <div class="mock-bar-row">
-                    <span class="mock-cat">Transport</span>
-                    <div class="mock-bar-track">
-                        <div class="mock-bar mock-bar-4" style="width: 28%"></div>
-                    </div>
-                    <span class="mock-amt">₹1,800</span>
+            </div>
+            <div class="dash-panel">
+                <div class="dash-row">
+                    <span class="dash-cat">Food</span>
+                    <div class="dash-track"><div class="dash-bar dash-bar-food" style="width: 72%"></div></div>
+                </div>
+                <div class="dash-row">
+                    <span class="dash-cat">Travel</span>
+                    <div class="dash-track"><div class="dash-bar dash-bar-travel" style="width: 48%"></div></div>
+                </div>
+                <div class="dash-row">
+                    <span class="dash-cat">Bills</span>
+                    <div class="dash-track"><div class="dash-bar dash-bar-bills" style="width: 38%"></div></div>
                 </div>
             </div>
         </div>
@@ -89,4 +88,51 @@
     </div>
 </section>
 
+<dialog id="how-it-works-modal" class="demo-modal" aria-label="How Spendly works">
+    <div class="demo-modal-inner">
+        <button type="button" class="demo-modal-close" aria-label="Close video">&times;</button>
+        <div class="demo-video">
+            <iframe id="how-it-works-frame"
+                    data-src="https://www.youtube.com/embed/jNQXAC9IVRw"
+                    title="How Spendly works"
+                    allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowfullscreen></iframe>
+        </div>
+    </div>
+</dialog>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+    (function () {
+        var modal = document.getElementById('how-it-works-modal');
+        var frame = document.getElementById('how-it-works-frame');
+        var openBtn = document.getElementById('how-it-works-btn');
+        var closeBtn = modal.querySelector('.demo-modal-close');
+
+        // Loading the video only when the modal opens, and clearing it on
+        // close, is what stops playback. Clearing the src also covers Esc.
+        openBtn.addEventListener('click', function () {
+            frame.src = frame.dataset.src;
+            modal.showModal();
+        });
+
+        closeBtn.addEventListener('click', function () {
+            modal.close();
+        });
+
+        // The dialog fills its own backdrop, so a click whose target is the
+        // dialog itself landed outside the inner box.
+        modal.addEventListener('click', function (e) {
+            if (e.target === modal) {
+                modal.close();
+            }
+        });
+
+        modal.addEventListener('close', function () {
+            frame.src = 'about:blank';
+        });
+    })();
+</script>
 {% endblock %}
