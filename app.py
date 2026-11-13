@@ -1,6 +1,8 @@
-from flask import Flask, render_template
+import sqlite3
 
-from database.db import get_db, init_db, seed_db
+from flask import Flask, redirect, render_template, request, url_for
+
+from database.db import create_user, get_db, get_user_by_email, init_db, seed_db
 
 app = Flask(__name__)
 
@@ -18,9 +20,47 @@ def landing():
     return render_template("landing.html")
 
 
-@app.route("/register")
+DUPLICATE_EMAIL_MESSAGE = "An account with this email already exists."
+
+
+def _is_valid_email(email):
+    """Basic check only: one @, a non-empty local part, a dot in the domain, no spaces."""
+    if " " in email or email.count("@") != 1:
+        return False
+    local, domain = email.split("@")
+    return bool(local) and "." in domain and not domain.startswith(".") and not domain.endswith(".")
+
+
+@app.route("/register", methods=["GET", "POST"])
 def register():
-    return render_template("register.html")
+    if request.method == "GET":
+        return render_template("register.html")
+
+    name = request.form.get("name", "").strip()
+    email = request.form.get("email", "").strip().lower()
+    password = request.form.get("password", "")
+
+    def show_error(message):
+        # The password is never sent back to the form.
+        return render_template("register.html", error=message, name=name, email=email), 400
+
+    if not name:
+        return show_error("Please enter your name.")
+    if not _is_valid_email(email):
+        return show_error("Please enter a valid email address.")
+    if len(password) < 8:
+        return show_error("Password must be at least 8 characters.")
+    if get_user_by_email(email) is not None:
+        return show_error(DUPLICATE_EMAIL_MESSAGE)
+
+    try:
+        create_user(name, email, password)
+    except sqlite3.IntegrityError:
+        # Two requests with the same email can both pass the check above.
+        # The UNIQUE constraint catches the second one.
+        return show_error(DUPLICATE_EMAIL_MESSAGE)
+
+    return redirect(url_for("login"))
 
 
 @app.route("/login")
