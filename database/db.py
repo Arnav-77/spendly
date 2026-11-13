@@ -99,11 +99,11 @@ def seed_db():
 
 
 def get_user_by_email(email):
-    """Return the user row with this email, or None if no such user exists."""
+    """Return the user row (id, name, email, password_hash) for this email, or None."""
     conn = get_db()
     try:
         return conn.execute(
-            "SELECT id FROM users WHERE email = ?", (email,)
+            "SELECT id, name, email, password_hash FROM users WHERE email = ?", (email,)
         ).fetchone()
     finally:
         conn.close()
