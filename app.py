@@ -1,10 +1,14 @@
+import os
 import sqlite3
 
-from flask import Flask, redirect, render_template, request, url_for
+from flask import Flask, redirect, render_template, request, session, url_for
+from werkzeug.security import check_password_hash
 
 from database.db import create_user, get_db, get_user_by_email, init_db, seed_db
 
 app = Flask(__name__)
+# Signs the session cookie. Set SECRET_KEY in any real deployment; the fallback is for local development only.
+app.secret_key = os.environ.get("SECRET_KEY", "dev-only-change-me")
 
 with app.app_context():
     init_db()
@@ -63,9 +67,33 @@ def register():
     return redirect(url_for("login"))
 
 
-@app.route("/login")
+INVALID_LOGIN_MESSAGE = "Invalid email or password."
+
+
+@app.route("/login", methods=["GET", "POST"])
 def login():
-    return render_template("login.html")
+    if request.method == "GET":
+        return render_template("login.html")
+
+    email = request.form.get("email", "").strip().lower()
+    password = request.form.get("password", "")
+
+    def show_error(message, status):
+        # The password is never sent back to the form.
+        return render_template("login.html", error=message, email=email), status
+
+    if not email or not password:
+        return show_error("Please enter your email and password.", 400)
+
+    user = get_user_by_email(email)
+    # Same message and status whether the email is unknown or the password is wrong.
+    if user is None or not check_password_hash(user["password_hash"], password):
+        return show_error(INVALID_LOGIN_MESSAGE, 401)
+
+    # Clear first so an older session cannot survive a new sign-in.
+    session.clear()
+    session["user_id"] = user["id"]
+    return redirect(url_for("profile"))
 
 
 @app.route("/terms")
@@ -84,7 +112,8 @@ def privacy():
 
 @app.route("/logout")
 def logout():
-    return "Logout — coming in Step 3"
+    session.clear()
+    return redirect(url_for("landing"))
 
 
 @app.route("/profile")
