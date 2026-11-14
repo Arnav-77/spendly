@@ -118,7 +118,50 @@ def logout():
 
 @app.route("/profile")
 def profile():
-    return "Profile page — coming in Step 4"
+    if not session.get("user_id"):
+        return redirect(url_for("login"))
+
+    # Step 4 uses hardcoded data only. Step 5 replaces these with database queries.
+    user = {
+        "name": "Demo User",
+        "email": "demo@spendly.com",
+        "member_since": "1 October 2026",
+        "initials": "DU",
+    }
+    stats = {
+        "total_spent": 3649.50,
+        "transaction_count": 8,
+        "top_category": "Shopping",
+    }
+    transactions = [
+        {"date": "02 Nov 2026", "description": "Groceries", "category": "Food", "amount": 450.00},
+        {"date": "04 Nov 2026", "description": "Metro card top-up", "category": "Transport", "amount": 120.50},
+        {"date": "06 Nov 2026", "description": "Mobile recharge", "category": "Bills", "amount": 899.00},
+        {"date": "08 Nov 2026", "description": "Pharmacy", "category": "Health", "amount": 350.00},
+        {"date": "10 Nov 2026", "description": "Movie tickets", "category": "Entertainment", "amount": 250.00},
+        {"date": "12 Nov 2026", "description": "Winter jacket", "category": "Shopping", "amount": 1200.00},
+        {"date": "13 Nov 2026", "description": "Stationery", "category": "Other", "amount": 80.00},
+        {"date": "14 Nov 2026", "description": "Dinner out", "category": "Food", "amount": 300.00},
+    ]
+    # percent is the share of total spent, rounded to the nearest 5 for the bar width class.
+    categories = [
+        {"name": "Shopping", "total": 1200.00, "percent": 35},
+        {"name": "Bills", "total": 899.00, "percent": 25},
+        {"name": "Food", "total": 750.00, "percent": 20},
+        {"name": "Health", "total": 350.00, "percent": 10},
+        {"name": "Entertainment", "total": 250.00, "percent": 5},
+        {"name": "Transport", "total": 120.50, "percent": 5},
+        {"name": "Other", "total": 80.00, "percent": 5},
+    ]
+
+    return render_template(
+        "profile.html",
+        user=user,
+        user_name=user["name"],
+        stats=stats,
+        transactions=transactions,
+        categories=categories,
+    )
 
 
 @app.route("/expenses/add")
