@@ -144,6 +144,7 @@ def profile():
         {"date": "14 Nov 2026", "description": "Dinner out", "category": "Food", "amount": 300.00},
     ]
     # percent is the share of total spent, rounded to the nearest 5 for the bar width class.
+    # Other is 2.2%, which rounds to 0; it is shown as 5 so the bar is still visible.
     categories = [
         {"name": "Shopping", "total": 1200.00, "percent": 35},
         {"name": "Bills", "total": 899.00, "percent": 25},
